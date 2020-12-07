@@ -68,3 +68,27 @@
     padding-top: 125px;
     width: 240px;
 }
+
+.button {
+    border-radius: 100%;
+    width: 62px;
+    height: 62px;
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+#record, .record {
+    color: #d9534f;
+}
+
+#record:disabled {
+    color: #d67e7b;
+}
+
+#stop, .stop {
+    color: #0275d8;
+}
+
+#stop:disabled {
+    color: #639bcb;
+}

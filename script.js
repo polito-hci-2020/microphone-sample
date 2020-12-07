@@ -1,44 +1,59 @@
-// var start = document.getElementById('start');
-var audio = document.getElementById('audio');
-var instructions = document.getElementById('instructions');
-var duration_sec = 5;
+let record = document.getElementById('record');
+let stop = document.getElementById('stop');
+let audio = document.getElementById('audio');
+let content = document.getElementById('content');
 
-var device = navigator.mediaDevices.getUserMedia({
-    audio: true
-})
-var items = [];
-// start.disabled = true;
-// start.innerHTML = "Recording...";
+let items = [];
 
-audio.controls = false;
+record.addEventListener('click', handleRecord);
 
-instructions.innerHTML = "Speak to record a " + duration_sec + " seconds audio.";
+function handleRecord(){
 
+    if (navigator.mediaDevices.getUserMedia) {
+        console.log('getUserMedia supported.');
+        const constraints = { audio: true };
 
-device.then( stream => {
-    var recorder = new MediaRecorder(stream);
-    recorder.ondataavailable = e => {
-        items.push(e.data);
-        if(recorder.state == 'inactive'){
-        var blob = new Blob(items, {type: 'audio/webm'});
-        audio.setAttribute('controls', 'controls');
-        audio.innerHTML = '<source src="' + URL.createObjectURL(blob) + '" type="video/webm"/>';
+        let onSuccess = function(stream){
+            console.log("OK");
+            const mediaRecorder = new MediaRecorder(stream);
+            items = [];
+            content.removeChild(content.lastChild);
+            record.disabled = true;
+            stop.disabled = false;
+
+            mediaRecorder.start();
+
+            stop.onclick = function(){
+                mediaRecorder.stop();
+                record.disabled = false;
+                stop.disabled = true;
+
+            }
+
+            mediaRecorder.ondataavailable = e => {
+                let audio = document.createElement("audio");
+                audio.id = "audio";
+                items.push(e.data);
+                if(mediaRecorder.state == 'inactive'){
+                    let blob = new Blob(items, {type: 'audio/webm'});
+                    audio.setAttribute('controls', 'controls');
+                    audio.innerHTML = '<source src="' + URL.createObjectURL(blob) + '" type="video/webm"/>';
+                    content.appendChild(audio);
+                }
+            }
         }
+
+
+        let onError = function(err){
+            window.alert("Error: the browser cannot access the microphone. Change the" +
+                " browser permission settings and reload the page.");
+        }
+
+
+        navigator.mediaDevices.getUserMedia(constraints).then(onSuccess, onError);
     }
-    recorder.start(100);
-    setTimeout(() => {
-        recorder.stop();
-        // start.disabled = false;
-        // start.innerHTML = "Start";
-    }, duration_sec*1000);
+}
 
-});
-
-
-// start.addEventListener('click', handleStartRecord);
-
-// function handleStartRecord(){
-// }
 
 
 
